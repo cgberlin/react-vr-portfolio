@@ -54,7 +54,7 @@ export default class Portfolio extends React.Component {
       this.lastUpdate = now; 
       this.setState({ rotation: this.state.rotation + delta / 10 }); 
       this.frameHandle = requestAnimationFrame(this.rotate); 
-      console.log(this.state.rotation)
+     
     }
   componentDidMount() {
     let boxArray = []
@@ -88,6 +88,23 @@ export default class Portfolio extends React.Component {
       this.frameHandle = null; 
     } 
   }
+  createBox(x, y, z) {
+    return <Box 
+                onEnter = {() => console.log(origin)}
+                dimWidth = {.2}
+                dimHeight = {.2}
+                dimDepth = {.2}
+                lit = {true}
+                texture = 'http://i.imgur.com/XaaZfWL.jpg'
+                style = {{
+                    color: '#3d3d3d',
+                    transform: [
+                      {translate: [x, y, z]},
+                      {rotateX: this.state.rotation}
+                    ]
+                }}
+            />
+  }
 
   render() {
     return (
@@ -114,9 +131,12 @@ export default class Portfolio extends React.Component {
                     ]
                 }}
             />
-        {this.state.boxArray.map(box => {
-          return box
-        })}
+            {this.createBox(2, 0, -2)}
+            {this.createBox(2, .2, -2)}
+            {this.createBox(2, .4, -2)}
+            {this.createBox(2, .6, -2)}
+            {this.createBox(2, .8, -2)}
+            {this.createBox(2, 1, -2)}
       </View>
     );
   }
