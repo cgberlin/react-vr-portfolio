@@ -7,12 +7,14 @@ import {
   View,
   Box,
   PointLight,
-  Animated
+  Animated,
+  Plane
 } from 'react-vr';
 
 import BoxObject from './vr/components/BoxObject.js'
 
 class TheBox extends React.Component {
+  
   componentDidMount() {
     Animated.createAnimatedComponent(this)
   }
@@ -60,20 +62,23 @@ export default class Portfolio extends React.Component {
     let boxArray = []
     let origin = -5
     for (let i = 0; i < 50; i++) {
-      boxArray.push(<Box 
-                onEnter = {() => console.log(origin)}
-                dimWidth = {.2}
-                dimHeight = {.2}
-                dimDepth = {.2}
-                lit = {true}
-                style = {{
-                    color: '#3d3d3d',
-                    transform: [
-                      {translate: [origin, 0, -5]},
-                      {rotateY: this.state.rotation}
-                    ]
-                }}
-            />)
+      let random = Math.floor(Math.random() * 3) + 1 
+      console.log(random) 
+      let direction = ''
+      switch (random) {
+        case 1: 
+          direction = 'rotateX'
+          break;
+        case 2: 
+          direction = 'rotateY'
+          break;
+        case 3: 
+          direction = 'rotateZ'
+          break;
+        default:
+          return;
+      }
+      boxArray.push({origin: origin, direction: direction})
         origin += .2
     }
     this.setState({
@@ -88,55 +93,73 @@ export default class Portfolio extends React.Component {
       this.frameHandle = null; 
     } 
   }
-  createBox(x, y, z) {
+  checkForDirection(direction) {
+    switch(direction) {
+      case 'rotateX': 
+        return {rotateX: this.state.currentlyRotating ? this.state.rotation : 0}
+        break;
+      case 'rotateY': 
+        return {rotateY: this.state.currentlyRotating ? this.state.rotation : 0}
+        break;
+      case 'rotateZ': 
+        return {rotateZ: this.state.currentlyRotating ? this.state.rotation : 0}
+        break;
+      default:
+        return
+    }
+  }
+  createBox(x, y, z, direction) {
     return <Box 
-                onEnter = {() => console.log(origin)}
                 dimWidth = {.2}
                 dimHeight = {.2}
+                onEnter = {() => this.setState({currentlyRotating: true})}
+                
                 dimDepth = {.2}
                 lit = {true}
-                texture = 'http://i.imgur.com/XaaZfWL.jpg'
+                texture = 'http://i.imgur.com/RnLvo5z.jpg'
                 style = {{
                     color: '#3d3d3d',
                     transform: [
                       {translate: [x, y, z]},
-                      {rotateX: this.state.rotation}
+                      this.checkForDirection(direction)
                     ]
                 }}
             />
   }
-
+  mapBoxes() {
+    let boxArray = this.state.boxArray
+    console.log(boxArray)
+    boxArray.map((box) => {
+      console.log(box.origin)
+      this.createBox(0, 0, -2, 'rotateX')
+    })
+  }
   render() {
+    let boxes = this.state.boxArray.map((box) => {
+      console.log(box.origin)
+      return this.createBox(box.origin, 0, -2, box.direction)
+    })
     return (
       <View>
         <PointLight 
           intensity = {5}
           decay = {2}
         />
-        <Box 
-                onEnter = {() => this.setState({currentlyRotating: true})}
-                onExit = {() => this.setState({currentlyRotating: false})}
-                dimWidth = {.9}
-                dimHeight = {.9}
-                dimDepth = {.9}
-                lit = {true}
-                texture = 'http://i.imgur.com/XaaZfWL.jpg'
-                style = {{
-                    color: '#3d3d3d',
-                    transform: [
-                      {translate: [0, 1, -2]},
-                      {rotateY: this.state.currentlyRotating ? this.state.rotation : 0},
-                      {rotateZ: this.state.currentlyRotating ? this.state.rotation : 0},
-                      {rotateX: this.state.currentlyRotating ? this.state.rotation : 0}
-                    ]
-                }}
+            
+            {boxes}
+            
+            <Plane
+              dimWidth = {20000}
+              dimHeight = {20000}
+              lit = {true}
+              texture = 'http://i.imgur.com/OrmUyMD.jpg'
+              style = {{
+                transform: [
+                  {translate: [0, -400, -20]},
+                  {rotateX: -90}
+                ]
+              }}
             />
-            {this.createBox(2, 0, -2)}
-            {this.createBox(2, .2, -2)}
-            {this.createBox(2, .4, -2)}
-            {this.createBox(2, .6, -2)}
-            {this.createBox(2, .8, -2)}
-            {this.createBox(2, 1, -2)}
       </View>
     );
   }
